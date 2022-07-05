@@ -39,45 +39,60 @@ static int get_btn_index(button_handle_t btn)
     return -1;
 }
 
-static void button_press_down_cb(void *arg)
+typedef struct usr_data {
+    uint32_t data;
+} User_data;
+
+static User_data test_data = {
+    .data = 0xDEADBEEF
+};
+
+static void button_press_down_cb(void *arg1, void *arg2)
 {
-    TEST_ASSERT_EQUAL_HEX(BUTTON_PRESS_DOWN, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_DOWN", get_btn_index((button_handle_t)arg));
+    TEST_ASSERT_EQUAL_HEX(BUTTON_PRESS_DOWN, iot_button_get_event(arg1));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_DOWN", get_btn_index((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
-static void button_press_up_cb(void *arg)
+static void button_press_up_cb(void *arg1, void *arg2)
 {
-    TEST_ASSERT_EQUAL_HEX(BUTTON_PRESS_UP, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_UP", get_btn_index((button_handle_t)arg));
+    TEST_ASSERT_EQUAL_HEX(BUTTON_PRESS_UP, iot_button_get_event(arg1));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_UP", get_btn_index((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
-static void button_press_repeat_cb(void *arg)
+static void button_press_repeat_cb(void *arg1, void *arg2)
 {
-    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_REPEAT[%d]", get_btn_index((button_handle_t)arg), iot_button_get_repeat((button_handle_t)arg));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_PRESS_REPEAT[%d]", get_btn_index((button_handle_t)arg1), iot_button_get_repeat((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
-static void button_single_click_cb(void *arg)
+static void button_single_click_cb(void *arg1, void *arg2)
 {
-    TEST_ASSERT_EQUAL_HEX(BUTTON_SINGLE_CLICK, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_SINGLE_CLICK", get_btn_index((button_handle_t)arg));
+    TEST_ASSERT_EQUAL_HEX(BUTTON_SINGLE_CLICK, iot_button_get_event(arg1));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_SINGLE_CLICK", get_btn_index((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
-static void button_double_click_cb(void *arg)
+static void button_double_click_cb(void *arg1, void *arg2)
 {
-    TEST_ASSERT_EQUAL_HEX(BUTTON_DOUBLE_CLICK, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_DOUBLE_CLICK", get_btn_index((button_handle_t)arg));
+    TEST_ASSERT_EQUAL_HEX(BUTTON_DOUBLE_CLICK, iot_button_get_event(arg1));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_DOUBLE_CLICK", get_btn_index((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
-static void button_long_press_start_cb(void *arg)
+static void button_long_press_start_cb(void *arg1, void *arg2)
 {
-    TEST_ASSERT_EQUAL_HEX(BUTTON_LONG_PRESS_START, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_LONG_PRESS_START", get_btn_index((button_handle_t)arg));
+    TEST_ASSERT_EQUAL_HEX(BUTTON_LONG_PRESS_START, iot_button_get_event(arg1));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_LONG_PRESS_START", get_btn_index((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
-static void button_long_press_hold_cb(void *arg)
+static void button_long_press_hold_cb(void *arg1, void *arg2)
 {
-    TEST_ASSERT_EQUAL_HEX(BUTTON_LONG_PRESS_HOLD, iot_button_get_event(arg));
-    ESP_LOGI(TAG, "BTN%d: BUTTON_LONG_PRESS_HOLD", get_btn_index((button_handle_t)arg));
+    TEST_ASSERT_EQUAL_HEX(BUTTON_LONG_PRESS_HOLD, iot_button_get_event(arg1));
+    ESP_LOGI(TAG, "BTN%d: BUTTON_LONG_PRESS_HOLD", get_btn_index((button_handle_t)arg1));
+    TEST_ASSERT_EQUAL_HEX(test_data.data, 0xDEADBEEF);
 }
 
 static void print_button_event(button_handle_t btn)
@@ -122,13 +137,13 @@ TEST_CASE("gpio button test", "[button][iot]")
     };
     g_btns[0] = iot_button_create(&cfg);
     TEST_ASSERT_NOT_NULL(g_btns[0]);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_DOWN, button_press_down_cb);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_UP, button_press_up_cb);
-    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT, button_press_repeat_cb);
-    iot_button_register_cb(g_btns[0], BUTTON_SINGLE_CLICK, button_single_click_cb);
-    iot_button_register_cb(g_btns[0], BUTTON_DOUBLE_CLICK, button_double_click_cb);
-    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_START, button_long_press_start_cb);
-    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_DOWN, button_press_down_cb, &test_data);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_UP, button_press_up_cb, &test_data);
+    iot_button_register_cb(g_btns[0], BUTTON_PRESS_REPEAT, button_press_repeat_cb, &test_data);
+    iot_button_register_cb(g_btns[0], BUTTON_SINGLE_CLICK, button_single_click_cb, &test_data);
+    iot_button_register_cb(g_btns[0], BUTTON_DOUBLE_CLICK, button_double_click_cb, &test_data);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_START, button_long_press_start_cb, &test_data);
+    iot_button_register_cb(g_btns[0], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, &test_data);
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -159,13 +174,13 @@ TEST_CASE("adc button test", "[button][iot]")
 
         g_btns[i] = iot_button_create(&cfg);
         TEST_ASSERT_NOT_NULL(g_btns[i]);
-        iot_button_register_cb(g_btns[i], BUTTON_PRESS_DOWN, button_press_down_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_PRESS_UP, button_press_up_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_PRESS_REPEAT, button_press_repeat_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_SINGLE_CLICK, button_single_click_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_DOUBLE_CLICK, button_double_click_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_START, button_long_press_start_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb);
+        iot_button_register_cb(g_btns[i], BUTTON_PRESS_DOWN, button_press_down_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_PRESS_UP, button_press_up_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_PRESS_REPEAT, button_press_repeat_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_SINGLE_CLICK, button_single_click_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_DOUBLE_CLICK, button_double_click_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_START, button_long_press_start_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, &test_data);
     }
 
     while (1) {
@@ -187,13 +202,13 @@ TEST_CASE("adc gpio button test", "[button][iot]")
     };
     g_btns[8] = iot_button_create(&cfg);
     TEST_ASSERT_NOT_NULL(g_btns[8]);
-    iot_button_register_cb(g_btns[8], BUTTON_PRESS_DOWN, button_press_down_cb);
-    iot_button_register_cb(g_btns[8], BUTTON_PRESS_UP, button_press_up_cb);
-    iot_button_register_cb(g_btns[8], BUTTON_PRESS_REPEAT, button_press_repeat_cb);
-    iot_button_register_cb(g_btns[8], BUTTON_SINGLE_CLICK, button_single_click_cb);
-    iot_button_register_cb(g_btns[8], BUTTON_DOUBLE_CLICK, button_double_click_cb);
-    iot_button_register_cb(g_btns[8], BUTTON_LONG_PRESS_START, button_long_press_start_cb);
-    iot_button_register_cb(g_btns[8], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb);
+    iot_button_register_cb(g_btns[8], BUTTON_PRESS_DOWN, button_press_down_cb, &test_data);
+    iot_button_register_cb(g_btns[8], BUTTON_PRESS_UP, button_press_up_cb, &test_data);
+    iot_button_register_cb(g_btns[8], BUTTON_PRESS_REPEAT, button_press_repeat_cb, &test_data);
+    iot_button_register_cb(g_btns[8], BUTTON_SINGLE_CLICK, button_single_click_cb, &test_data);
+    iot_button_register_cb(g_btns[8], BUTTON_DOUBLE_CLICK, button_double_click_cb, &test_data);
+    iot_button_register_cb(g_btns[8], BUTTON_LONG_PRESS_START, button_long_press_start_cb, &test_data);
+    iot_button_register_cb(g_btns[8], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, &test_data);
 
     /** ESP32-LyraT-Mini board */
     const uint16_t vol[6] = {380, 820, 1180, 1570, 1980, 2410};
@@ -216,13 +231,13 @@ TEST_CASE("adc gpio button test", "[button][iot]")
 
         g_btns[i] = iot_button_create(&cfg);
         TEST_ASSERT_NOT_NULL(g_btns[i]);
-        iot_button_register_cb(g_btns[i], BUTTON_PRESS_DOWN, button_press_down_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_PRESS_UP, button_press_up_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_PRESS_REPEAT, button_press_repeat_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_SINGLE_CLICK, button_single_click_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_DOUBLE_CLICK, button_double_click_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_START, button_long_press_start_cb);
-        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb);
+        iot_button_register_cb(g_btns[i], BUTTON_PRESS_DOWN, button_press_down_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_PRESS_UP, button_press_up_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_PRESS_REPEAT, button_press_repeat_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_SINGLE_CLICK, button_single_click_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_DOUBLE_CLICK, button_double_click_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_START, button_long_press_start_cb, &test_data);
+        iot_button_register_cb(g_btns[i], BUTTON_LONG_PRESS_HOLD, button_long_press_hold_cb, &test_data);
     }
 
     while (1) {
